@@ -24,4 +24,15 @@ class DAO():
                 return client
             except Error as ex:
                 print("Error al intentar la conexión: {0}".format(ex))
+
+    def search_full_log(self, field, key):
+        if self.conexion.is_connected():
+            try:
+                cursor = self.conexion.cursor()
+                sql = "SELECT l.username, l.profile, l.password, l.status, c.id FROM client_log l INNER JOIN client c ON l.client = c.id WHERE l.{0} = '{1}'"
+                cursor.execute(sql.format(field, key))
+                client = cursor.fetchone()
+                return client
+            except Error as ex:
+                print("Error al intentar la conexión: {0}".format(ex))
             
