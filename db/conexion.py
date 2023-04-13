@@ -18,7 +18,7 @@ class DAO():
         if self.conexion.is_connected():
             try:
                 cursor = self.conexion.cursor()
-                sql = "SELECT * FROM clients WHERE {0} = {1}"
+                sql = "SELECT * FROM client WHERE {0} = {1}"
                 cursor.execute(sql.format(field, key))
                 client = cursor.fetchone()
                 return client

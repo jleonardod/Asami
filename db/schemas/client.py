@@ -1,17 +1,14 @@
 def client_schema(client) -> dict:
     return {"id": int(client[0]),
-            "create_time": client[1],
-            "name": client[2],
-            "last_name": client[3],
-            "identification": client[4],
-            "username": client[5],
-            "email": client[6],
-            "phone": client[7],
-            "city": client[8],
-            "country": client[9],
-            "location": client[10],
-            "type": client[11],
-            "status": client[12]}
+            "name": client[1],
+            "last_name": client[2],
+            "identification": client[3],
+            "email": client[4],
+            "phone": client[5],
+            "city": client[6],
+            "country": client[7],
+            "location": client[8],
+            "type": client[9]}
 
 def clients_schema(clients) -> list:
     return [client_schema(client) for client in clients]

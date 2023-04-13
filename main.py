@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, status, APIRouter
+from fastapi import FastAPI, Depends, HTTPException, status, APIRouter, Header
 from pydantic import BaseModel
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import jwt, JWTError
@@ -6,10 +6,15 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from fastapi.staticfiles import StaticFiles
 from routers import client
+from dependencies import get_token_header
 
 app = FastAPI()
 
-app.include_router(client.router)
+app.include_router(client.router,
+                   prefix="/client",
+                   tags=["client"],
+                   dependencies=[Depends(get_token_header)],
+                   responses={status.HTTP_404_NOT_FOUND: {"message": "No encontrado"}})
 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_DURATION = 1
