@@ -3,23 +3,23 @@ from pydantic import BaseModel
 class Product(BaseModel):
     id : int | None
     partNum : str
-    familia : str
-    categoria : str
+    familia : int
+    categoria : int
     name : str
     description : str
-    marks : str
+    marks : int
     sales_min_price : str
     sales_max_price : str
     precio : str
-    currency_def : str
+    currency_def : int
     quantity : str
-    tributari_classification : str
+    tributari_classification : int
     nombre_imagen : str
     descuento : str
     shipping : str
     condition : str
     category : str
-    color : str
+    color : int
     width : str
     height : str
     depth : str
