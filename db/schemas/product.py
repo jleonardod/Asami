@@ -37,4 +37,4 @@ def product_schema(product) -> dict:
             "disco_duro_ssd_tb": product[34]}
 
 def products_schema(products) -> list:
-    return {"ListaProductos": [product_schema(product) for product in products]}
+    return [product_schema(product) for product in products]

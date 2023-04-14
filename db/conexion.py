@@ -46,4 +46,37 @@ class DAO():
                 return products
             except Error as ex:
                 print("Error al intentar la conexión: {0}".format(ex))
+
+    def list_mark(self):
+        if self.conexion.is_connected():
+            try:
+                cursor = self.conexion.cursor()
+                sql = "SELECT * FROM marks"
+                cursor.execute(sql)
+                products = cursor.fetchall()
+                return products
+            except Error as ex:
+                print("Error al intentar la conexión: {0}".format(ex))
+
+    def list_colors(self):
+        if self.conexion.is_connected():
+            try:
+                cursor = self.conexion.cursor()
+                sql = "SELECT nombre FROM color"
+                cursor.execute(sql)
+                products = cursor.fetchall()
+                return products
+            except Error as ex:
+                print("Error al intentar la conexión: {0}".format(ex))
+
+    def list_categorys(self):
+        if self.conexion.is_connected():
+            try:
+                cursor = self.conexion.cursor()
+                sql = "SELECT * FROM categoria"
+                cursor.execute(sql)
+                products = cursor.fetchall()
+                return products
+            except Error as ex:
+                print("Error al intentar la conexión: {0}".format(ex))
             
