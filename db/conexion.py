@@ -40,8 +40,8 @@ class DAO():
         if self.conexion.is_connected():
             try:
                 cursor = self.conexion.cursor()
-                sql = "SELECT * FROM product"
-                cursor.execute(sql)
+                sql = "SELECT p.*, f.{0}, c.{0}, m.{0}, d.{0}, t.{0}, l.{0} FROM product p {1} familia f ON p.familia = f.id {1} categoria c ON p.categoria = c.id {1} marks m ON p.marks = m.id {1} currency_def d ON p.currencyDef = d.id {1} tributari_classification t ON p.tributariClassification = t.id {1} color l ON p.color = l.id"
+                cursor.execute(sql.format("nombre", "INNER JOIN"))
                 products = cursor.fetchall()
                 return products
             except Error as ex:
