@@ -36,12 +36,22 @@ class DAO():
             except Error as ex:
                 print("Error al intentar la conexión: {0}".format(ex))
 
-    def list_products(self):
+    def list_products(self, categoria : int | None):
         if self.conexion.is_connected():
+            condition = "WHERE "
             try:
                 cursor = self.conexion.cursor()
-                sql = "SELECT p.*, f.{0}, c.{0}, m.{0}, d.{0}, t.{0}, l.{0} FROM product p {1} familia f ON p.familia = f.id {1} categoria c ON p.categoria = c.id {1} marks m ON p.marks = m.id {1} currency_def d ON p.currencyDef = d.id {1} tributari_classification t ON p.tributariClassification = t.id {1} color l ON p.color = l.id"
-                cursor.execute(sql.format("nombre", "INNER JOIN"))
+                sql = "SELECT p.*, f.{0}, c.{0}, m.{0}, d.{0}, t.{0}, l.{0} FROM product p {1} familia f ON p.familia = f.id {1} categoria c ON p.categoria = c.id {1} marks m ON p.marks = m.id {1} currency_def d ON p.currencyDef = d.id {1} tributari_classification t ON p.tributariClassification = t.id {1} color l ON p.color = l.id {2}"
+                
+                if categoria:
+                    
+                    condition += "familia = "
+                    condition += str(categoria)
+                    
+                else:
+                    condition = ""
+                
+                cursor.execute(sql.format("nombre", "INNER JOIN", condition))
                 products = cursor.fetchall()
                 return products
             except Error as ex:
@@ -76,6 +86,17 @@ class DAO():
                 sql = "SELECT * FROM categoria"
                 cursor.execute(sql)
                 products = cursor.fetchall()
+                return products
+            except Error as ex:
+                print("Error al intentar la conexión: {0}".format(ex))
+
+    def search_categoria(self, x_categoria):
+        if self.conexion.is_connected():
+            try:
+                cursor = self.conexion.cursor()
+                sql = "SELECT * FROM familia WHERE nombre = '{0}'"
+                cursor.execute(sql.format(x_categoria))
+                products = cursor.fetchone()
                 return products
             except Error as ex:
                 print("Error al intentar la conexión: {0}".format(ex))

@@ -18,11 +18,7 @@ app.include_router(client.router,
                    dependencies=[Depends(get_token_header)],
                    responses={status.HTTP_404_NOT_FOUND: {"message": "No encontrado"}})
 
-app.include_router(product.router,
-                   prefix="/product",
-                   tags=["product"],
-                   dependencies=[Depends(get_token_header)],
-                   responses={status.HTTP_404_NOT_FOUND: {"message": "No encontrado"}})
+app.include_router(product.router)
 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_DURATION = 1
