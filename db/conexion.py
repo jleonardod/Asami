@@ -57,12 +57,15 @@ class DAO():
             except Error as ex:
                 print("Error al intentar la conexión: {0}".format(ex))
 
-    def list_mark(self):
+    def list_mark(self, categoria : int | None):
         if self.conexion.is_connected():
             try:
                 cursor = self.conexion.cursor()
-                sql = "SELECT * FROM marks"
-                cursor.execute(sql)
+                if categoria :
+                    sql = "SELECT DISTINCT m.* FROM marks m INNER JOIN product p ON p.marks = m.id WHERE p.categoria = {0}"
+                else :
+                    sql = "SELECT * FROM marks"
+                cursor.execute(sql.format(categoria))
                 products = cursor.fetchall()
                 return products
             except Error as ex:

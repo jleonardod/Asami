@@ -8,8 +8,9 @@ from db.conexion import DAO
 from db.schemas.product import products_schema
 from db.schemas.catalogo import catalogo_schema
 
-### Categorias - Familias ###
+### Metodos ###
 from .categoria import list_categorias, search_categoria
+from .marks import list_marks
 
 router = APIRouter(prefix="/product",
                    tags=["products/"],
@@ -66,14 +67,6 @@ async def list_products(categoria : int | None):
         return products_schema(products)
     except:
         return {"error" : "No se pudo acceder a los productos"}
-
-async def list_marks(categoria : int | None):
-    dao = DAO()
-    try:
-        marks = dao.list_mark()
-        return marks
-    except:
-        return {"error" : "No se pudo acceder a las marcas"}
     
 async def list_colors():
     dao = DAO()
