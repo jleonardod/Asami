@@ -122,12 +122,12 @@ class DAO():
             except Error as ex:
                 print("Error al intentar la conexión: {0}".format(ex))
 
-    def search_familia(self, familia):
+    def search_familia(self, field : str | None, familia : str | None):
         if self.conexion.is_connected():
             try:
                 cursor = self.conexion.cursor()
-                sql = "SELECT * FROM familia WHERE nombre = '{0}'"
-                cursor.execute(sql.format(familia))
+                sql = "SELECT * FROM familia WHERE {0} = '{1}'"
+                cursor.execute(sql.format(field, familia))
                 products = cursor.fetchone()
                 return products
             except Error as ex:

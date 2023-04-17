@@ -24,21 +24,25 @@ async def buscar_familia(x_familia : str | None):
     if x_familia:
         is_number = await is_numeric(x_familia)
         
-        if not is_number:
-            familia = await search_familia(x_familia)
-            if familia is None:
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="La categoria no existe")
-            else:
-                return familia.id
+        if is_number:
+            field = 'id'
+        else: 
+            field = 'nombre'
+        
+        familia = await search_familia(field, x_familia)
+        
+        if familia is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="La categoria no existe")
         else:
-            return x_familia
+            return familia.id
+        
     else:
         return None
     
-async def search_familia(x_familia : str | None):
+async def search_familia(field : str, x_familia : str | None):
     dao = DAO()
     try:
-        familia = dao.search_familia(x_familia)
+        familia = dao.search_familia(field, x_familia)
         return Familia(**familia_schema(familia))
     except:
         return None
