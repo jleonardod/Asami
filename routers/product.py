@@ -39,7 +39,7 @@ async def products(x_categoria : str | None = Header(default=None),
         marks = await list_marks(id_familia)
         colores = await list_colors(id_familia)
         familias = await list_families(id_familia)
-        categorys = await list_categorias()
+        categorys = await list_categorias(id_familia)
         productos = catalogo_schema(prods, marks, len(prods), colores, categorys, familias)
         return productos
     except:
