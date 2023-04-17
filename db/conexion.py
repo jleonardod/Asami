@@ -37,27 +37,11 @@ class DAO():
                 print("Error al intentar la conexión: {0}".format(ex))
 
     def list_products(self, flags : dict | None):
-        familia = None
-        contador = 0
-        condition = ""
 
         if len(flags) > 0:
 
-            for nombre, valor in flags.items():
-                if nombre == "subcategoria":
-                    nombre = "categoria"
+            condition = ajustar_condition(flags, "product")
 
-                if contador == 0:
-                    condition += " WHERE "
-                else: 
-                    condition += " AND "
-                
-                condition += "{0} = {1}"
-                condition = condition.format(nombre, valor)
-                
-                contador = contador+1
-
-            print(condition)
         else:
             condition = ""
 
@@ -72,14 +56,18 @@ class DAO():
             except Error as ex:
                 print("Error al intentar la conexión: {0}".format(ex))
 
-    def list_mark(self, familia : int | None):
+    def list_mark(self, flags : dict | None):
+        familia = None
+        sql = "SELECT DISTINCT m.* FROM marks m"
+        if len(flags) > 0:
+            sql += " INNER JOIN product p ON m.id = p.marks "
+            condition = ajustar_condition(flags, "attribute")
+            sql += condition
+            
         if self.conexion.is_connected():
             try:
                 cursor = self.conexion.cursor()
-                if familia :
-                    sql = "SELECT DISTINCT m.* FROM marks m INNER JOIN product p ON p.marks = m.id WHERE p.familia = {0}"
-                else :
-                    sql = "SELECT * FROM marks"
+                
                 cursor.execute(sql.format(familia))
                 products = cursor.fetchall()
                 return products
@@ -150,4 +138,24 @@ class DAO():
                 return products
             except Error as ex:
                 print("Error al intentar la conexión: {0}".format(ex))
+
+def ajustar_condition(flags : dict, tipo_conversion: str):
+    contador = 0
+    condition = ""
+    for nombre, valor in flags.items():
+        if nombre == "subcategoria":
+            nombre = "categoria"
+
+        if contador == 0:
+            condition += " WHERE "
+        else: 
+            condition += " AND "
+                
+        condition += "{0} = {1}"
+        condition = condition.format(nombre, valor)
+                
+        contador = contador+1
+
+    # print(condition)
+    return condition
             

@@ -44,7 +44,7 @@ async def products(x_categoria : str | None = Header(default=None),
     
     try:
         prods = await list_products(items_busqueda)
-        marks = await list_marks(id_familia)
+        marks = await list_marks(items_busqueda)
         colores = await list_colors(id_familia)
         familias = await list_families(id_familia)
         categorys = await list_categorias(id_familia)
