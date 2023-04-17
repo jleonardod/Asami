@@ -9,8 +9,9 @@ from db.schemas.product import products_schema
 from db.schemas.catalogo import catalogo_schema
 
 ### Metodos ###
-from .categoria import list_categorias, search_categoria
-from .marks import list_marks
+from routers.categoria import list_categorias, search_categoria
+from routers.marks import list_marks
+from routers.colors import list_colors
 
 router = APIRouter(prefix="/product",
                    tags=["products/"],
@@ -42,10 +43,13 @@ async def products(x_categoria : str | None = Header(default=None),
         else:
             id_categoria = x_categoria
 
+    
+
     try:
         prods = await list_products(id_categoria)
+        # print(prods)
         marks = await list_marks(id_categoria)
-        colores = await list_colors()
+        colores = await list_colors(id_categoria)
         categorys = await list_categorias()
         productos = catalogo_schema(prods, marks, len(prods), colores, categorys)
         return productos
@@ -68,20 +72,6 @@ async def list_products(categoria : int | None):
     except:
         return {"error" : "No se pudo acceder a los productos"}
     
-async def list_colors():
-    dao = DAO()
-    try:
-        colores = []
-        colors = dao.list_colors()
-        for color in colors:
-            color = str(color)
-            color = color.replace(',', '')
-            color = color.replace('(', '')
-            color = color.replace(')', '')
-            color = color.replace("'", "")
-            colores.append(color)
-        return colores
-    except:
-        return {"error" : "No se pudo acceder a los colores"}
+
     
 

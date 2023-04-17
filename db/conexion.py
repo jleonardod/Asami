@@ -71,12 +71,15 @@ class DAO():
             except Error as ex:
                 print("Error al intentar la conexión: {0}".format(ex))
 
-    def list_colors(self):
+    def list_colors(self, familia : int | None):
         if self.conexion.is_connected():
             try:
                 cursor = self.conexion.cursor()
-                sql = "SELECT nombre FROM color"
-                cursor.execute(sql)
+                if familia : 
+                    sql = "SELECT DISTINCT c.* FROM color c INNER JOIN product p ON c.id = p.familia WHERE p.familia = {0}"
+                else:
+                    sql = "SELECT * FROM color"
+                cursor.execute(sql.format(familia))
                 products = cursor.fetchall()
                 return products
             except Error as ex:
