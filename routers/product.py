@@ -9,9 +9,10 @@ from db.schemas.product import products_schema
 from db.schemas.catalogo import catalogo_schema
 
 ### Metodos ###
-from routers.categoria import list_categorias, search_categoria
+from routers.categoria import list_categorias
 from routers.marks import list_marks
 from routers.colors import list_colors
+from routers.familia import list_families, buscar_familia
 
 router = APIRouter(prefix="/product",
                    tags=["products/"],
@@ -31,47 +32,28 @@ async def products(x_categoria : str | None = Header(default=None),
                    x_productonuevo : str | None = Header(default=None),
                    x_color : str | None = Header(default=None)):
     
-    if x_categoria:
-        is_number = await is_numeric(x_categoria)
-        
-        if not is_number:
-            categoria = await search_categoria(x_categoria)
-            if categoria is None:
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="La categoria no existe")
-            else:
-                id_categoria = categoria.id
-        else:
-            id_categoria = x_categoria
-
+    id_familia = await buscar_familia(x_categoria)
     
-
     try:
-        prods = await list_products(id_categoria)
-        # print(prods)
-        marks = await list_marks(id_categoria)
-        colores = await list_colors(id_categoria)
+        prods = await list_products(id_familia)
+        marks = await list_marks(id_familia)
+        colores = await list_colors(id_familia)
+        familias = await list_families(id_familia)
         categorys = await list_categorias()
-        productos = catalogo_schema(prods, marks, len(prods), colores, categorys)
+        productos = catalogo_schema(prods, marks, len(prods), colores, categorys, familias)
         return productos
     except:
         return {"mensaje" : "Ha ocurrido un error"}
-    
-async def is_numeric(flag : str):
-    try:
-        complex(flag)
-        return True
-    except:
-        return False
 
-async def list_products(categoria : int | None):
+async def list_products(familia : int | None):
     
     dao = DAO()
     try:
-        products = dao.list_products(categoria)
+        products = dao.list_products(familia)
         return products_schema(products)
     except:
         return {"error" : "No se pudo acceder a los productos"}
-    
+
 
     
 
