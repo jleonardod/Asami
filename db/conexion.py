@@ -36,21 +36,36 @@ class DAO():
             except Error as ex:
                 print("Error al intentar la conexión: {0}".format(ex))
 
-    def list_products(self, familia : int | None):
+    def list_products(self, flags : dict | None):
+        familia = None
+        contador = 0
+        condition = ""
+
+        if len(flags) > 0:
+
+            for nombre, valor in flags.items():
+                if nombre == "subcategoria":
+                    nombre = "categoria"
+
+                if contador == 0:
+                    condition += " WHERE "
+                else: 
+                    condition += " AND "
+                
+                condition += "{0} = {1}"
+                condition = condition.format(nombre, valor)
+                
+                contador = contador+1
+
+            print(condition)
+        else:
+            condition = ""
+
         if self.conexion.is_connected():
-            condition = "WHERE "
             try:
                 cursor = self.conexion.cursor()
                 sql = "SELECT p.*, f.{0}, c.{0}, m.{0}, d.{0}, t.{0}, l.{0} FROM product p {1} familia f ON p.familia = f.id {1} categoria c ON p.categoria = c.id {1} marks m ON p.marks = m.id {1} currency_def d ON p.currencyDef = d.id {1} tributari_classification t ON p.tributariClassification = t.id {1} color l ON p.color = l.id {2}"
-                
-                if familia:
-                    
-                    condition += "familia = "
-                    condition += str(familia)
-                    
-                else:
-                    condition = ""
-                
+
                 cursor.execute(sql.format("nombre", "INNER JOIN", condition))
                 products = cursor.fetchall()
                 return products
@@ -114,12 +129,12 @@ class DAO():
             except Error as ex:
                 print("Error al intentar la conexión: {0}".format(ex))
 
-    def search_categoria(self, x_categoria):
+    def search_categoria(self, field, x_categoria):
         if self.conexion.is_connected():
             try:
                 cursor = self.conexion.cursor()
-                sql = "SELECT * FROM familia WHERE nombre = '{0}'"
-                cursor.execute(sql.format(x_categoria))
+                sql = "SELECT * FROM categoria WHERE {0} = '{1}'"
+                cursor.execute(sql.format(field, x_categoria))
                 products = cursor.fetchone()
                 return products
             except Error as ex:
