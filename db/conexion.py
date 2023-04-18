@@ -36,87 +36,109 @@ class DAO():
             except Error as ex:
                 print("Error al intentar la conexión: {0}".format(ex))
 
-    def list_products(self, familia : int | None):
+    def list_products(self, flags : dict | None):
+
+        if len(flags) > 0:
+            condition = ajustar_condition(flags)
+        else:
+            condition = ""
+
         if self.conexion.is_connected():
-            condition = "WHERE "
             try:
                 cursor = self.conexion.cursor()
                 sql = "SELECT p.*, f.{0}, c.{0}, m.{0}, d.{0}, t.{0}, l.{0} FROM product p {1} familia f ON p.familia = f.id {1} categoria c ON p.categoria = c.id {1} marks m ON p.marks = m.id {1} currency_def d ON p.currencyDef = d.id {1} tributari_classification t ON p.tributariClassification = t.id {1} color l ON p.color = l.id {2}"
-                
-                if familia:
-                    
-                    condition += "familia = "
-                    condition += str(familia)
-                    
-                else:
-                    condition = ""
-                
+
                 cursor.execute(sql.format("nombre", "INNER JOIN", condition))
                 products = cursor.fetchall()
                 return products
             except Error as ex:
                 print("Error al intentar la conexión: {0}".format(ex))
 
-    def list_mark(self, familia : int | None):
-        if self.conexion.is_connected():
-            try:
-                cursor = self.conexion.cursor()
-                if familia :
-                    sql = "SELECT DISTINCT m.* FROM marks m INNER JOIN product p ON p.marks = m.id WHERE p.familia = {0}"
-                else :
-                    sql = "SELECT * FROM marks"
-                cursor.execute(sql.format(familia))
-                products = cursor.fetchall()
-                return products
-            except Error as ex:
-                print("Error al intentar la conexión: {0}".format(ex))
+    def list_mark(self, flags : dict | None):
+        
+        sql = "SELECT DISTINCT m.* FROM marks m"
+        if len(flags) > 0:
+            sql += " INNER JOIN product p ON m.id = p.marks "
+            condition = ajustar_condition(flags)
+            sql += condition
 
-    def list_colors(self, familia : int | None):
         if self.conexion.is_connected():
             try:
                 cursor = self.conexion.cursor()
-                if familia : 
-                    sql = "SELECT DISTINCT c.* FROM color c INNER JOIN product p ON c.id = p.familia WHERE p.familia = {0}"
-                else:
-                    sql = "SELECT * FROM color"
-                cursor.execute(sql.format(familia))
-                products = cursor.fetchall()
-                return products
-            except Error as ex:
-                print("Error al intentar la conexión: {0}".format(ex))
-
-    def list_categorys(self):
-        if self.conexion.is_connected():
-            try:
-                cursor = self.conexion.cursor()
-                sql = "SELECT * FROM categoria"
+                
                 cursor.execute(sql)
                 products = cursor.fetchall()
                 return products
             except Error as ex:
                 print("Error al intentar la conexión: {0}".format(ex))
 
-    def list_familias(self, familia : int | None):
+    def list_colors(self, flags : dict | None):
+        sql = "SELECT DISTINCT c.* FROM color c"
+        if len(flags) > 0:
+            sql += " INNER JOIN product p ON c.id = p.color "
+            condition = ajustar_condition(flags)
+            sql += condition
+
         if self.conexion.is_connected():
             try:
                 cursor = self.conexion.cursor()
-                if familia : 
-                    sql = "SELECT * FROM familia WHERE id = {0}"
-                else : 
-                    sql = "SELECT * FROM familia {0}"
-            
-                cursor.execute(sql.format(familia))
+                
+                cursor.execute(sql)
                 products = cursor.fetchall()
                 return products
             except Error as ex:
                 print("Error al intentar la conexión: {0}".format(ex))
 
-    def search_categoria(self, x_categoria):
+    def search_mark(self, field, x_mark):
+        
         if self.conexion.is_connected():
             try:
                 cursor = self.conexion.cursor()
-                sql = "SELECT * FROM familia WHERE nombre = '{0}'"
-                cursor.execute(sql.format(x_categoria))
+                sql = "SELECT * FROM marks WHERE {0} = '{1}'"
+                cursor.execute(sql.format(field, x_mark))
+                marca = cursor.fetchone()
+                return marca
+            except Error as ex:
+                print("Error al intentar la conexión: {0}".format(ex))
+
+    def list_categorys(self, flags : dict | None):
+        sql = "SELECT DISTINCT c.* FROM categoria c"
+        if len(flags) > 0:
+            sql += " INNER JOIN product p ON c.id = p.categoria "
+            condition = ajustar_condition(flags)
+            sql += condition
+
+        if self.conexion.is_connected():
+            try:
+                cursor = self.conexion.cursor()
+                cursor.execute(sql)
+                products = cursor.fetchall()
+                return products
+            except Error as ex:
+                print("Error al intentar la conexión: {0}".format(ex))
+
+    def list_familias(self, flags : dict | None):
+        sql = "SELECT DISTINCT f.* FROM familia f"
+        if len(flags) > 0:
+            sql += " INNER JOIN product p ON f.id = p.familia "
+            condition = ajustar_condition(flags)
+            sql += condition
+
+        if self.conexion.is_connected():
+            try:
+                cursor = self.conexion.cursor()
+                cursor.execute(sql)
+                products = cursor.fetchall()
+                return products
+            except Error as ex:
+                print("Error al intentar la conexión: {0}".format(ex))
+
+    def search_categoria(self, field, x_categoria):
+        if self.conexion.is_connected():
+            try:
+                cursor = self.conexion.cursor()
+                sql = "SELECT * FROM categoria WHERE {0} = '{1}'"
+                cursor.execute(sql.format(field, x_categoria))
                 products = cursor.fetchone()
                 return products
             except Error as ex:
@@ -132,4 +154,24 @@ class DAO():
                 return products
             except Error as ex:
                 print("Error al intentar la conexión: {0}".format(ex))
+
+def ajustar_condition(flags : dict):
+    contador = 0
+    condition = ""
+    for nombre, valor in flags.items():
+        if nombre == "subcategoria":
+            nombre = "categoria"
+
+        if contador == 0:
+            condition += " WHERE "
+        else: 
+            condition += " AND "
+                
+        condition += "{0} = {1}"
+        condition = condition.format(nombre, valor)
+                
+        contador = contador+1
+
+    # print(condition)
+    return condition
             

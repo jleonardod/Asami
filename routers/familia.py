@@ -10,10 +10,13 @@ from db.models.familia import Familia
 ### Schemas ###
 from db.schemas.familia import familia_schema
 
-async def list_families(id_familia : int | None):
+### General ###
+from general.numeric import is_numeric
+
+async def list_families(flags : dict | None):
     dao = DAO()
     try:
-        familias = dao.list_familias(id_familia)
+        familias = dao.list_familias(flags)
         return familias
     except:
         return {"error" : "No se pudo acceder a los colores"}
@@ -22,7 +25,7 @@ async def list_families(id_familia : int | None):
 async def buscar_familia(x_familia : str | None):
 
     if x_familia:
-        is_number = await is_numeric(x_familia)
+        is_number = is_numeric(x_familia)
         
         if is_number:
             field = 'id'
@@ -47,9 +50,3 @@ async def search_familia(field : str, x_familia : str | None):
     except:
         return None
 
-async def is_numeric(flag : str):
-    try:
-        complex(flag)
-        return True
-    except:
-        return False
