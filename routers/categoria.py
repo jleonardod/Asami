@@ -13,10 +13,10 @@ from db.models.categoria import Categoria
 ### General ###
 from general.numeric import is_numeric
 
-async def list_categorias(id_familia : int | None):
+async def list_categorias(flags : dict | None):
     dao = DAO()
     try:
-        categorias = dao.list_categorys(id_familia)
+        categorias = dao.list_categorys(flags)
         return categorias
     except:
         return {"error" : "No se pudo acceder a los colores"}
