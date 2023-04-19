@@ -13,10 +13,10 @@ from db.schemas.familia import familia_schema
 ### General ###
 from general.numeric import is_numeric
 
-async def list_families(flags : dict | None):
+async def list_families(flags : dict | None, atributos : dict | None):
     dao = DAO()
     try:
-        familias = dao.list_familias(flags)
+        familias = dao.list_familias(flags, atributos)
         return familias
     except:
         return {"error" : "No se pudo acceder a los colores"}
