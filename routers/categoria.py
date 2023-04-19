@@ -13,13 +13,13 @@ from db.models.categoria import Categoria
 ### General ###
 from general.numeric import is_numeric
 
-async def list_categorias(flags : dict | None):
+async def list_categorias(flags : dict | None, atributos : dict | None):
     dao = DAO()
     try:
-        categorias = dao.list_categorys(flags)
+        categorias = dao.list_categorys(flags, atributos)
         return categorias
     except:
-        return {"error" : "No se pudo acceder a los colores"}
+        return {"error" : "No se pudo acceder a las subcategorias"}
 
 async def buscar_categoria(x_subcategoria : str | None):
 

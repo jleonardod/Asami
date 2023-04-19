@@ -38,10 +38,7 @@ class DAO():
 
     def list_products(self, flags : dict | None, atributos : dict | None):
 
-        
-
         if len(flags) > 0 or len(atributos) > 0:
-            
             condition = ajustar_condition(flags, atributos)
         else:
             condition = ""
@@ -50,7 +47,6 @@ class DAO():
             try:
                 cursor = self.conexion.cursor()
                 sql = "SELECT p.*, f.{0}, c.{0}, m.{0}, d.{0}, t.{0}, l.{0} FROM product p {1} familia f ON p.familia = f.id {1} categoria c ON p.categoria = c.id {1} marks m ON p.marks = m.id {1} currency_def d ON p.currencyDef = d.id {1} tributari_classification t ON p.tributariClassification = t.id {1} color l ON p.color = l.id {2}"
-
                 cursor.execute(sql.format("nombre", "INNER JOIN", condition))
                 # print(sql.format("nombre", "INNER JOIN", condition))
                 products = cursor.fetchall()
@@ -58,13 +54,16 @@ class DAO():
             except Error as ex:
                 print("Error al intentar la conexión: {0}".format(ex))
 
-    def list_mark(self, flags : dict | None):
+    def list_mark(self, flags : dict | None, atributos : dict | None):
         
         sql = "SELECT DISTINCT m.* FROM marks m"
-        if len(flags) > 0:
+        if len(flags) > 0 or len(atributos) > 0:
             sql += " INNER JOIN product p ON m.id = p.marks "
-            condition = ajustar_condition(flags)
+            condition = ajustar_condition(flags, atributos)
             sql += condition
+        
+        #print(atributos)
+        #print(sql)
 
         if self.conexion.is_connected():
             try:
@@ -76,11 +75,11 @@ class DAO():
             except Error as ex:
                 print("Error al intentar la conexión: {0}".format(ex))
 
-    def list_colors(self, flags : dict | None):
+    def list_colors(self, flags : dict | None, atributos : dict | None):
         sql = "SELECT DISTINCT c.* FROM color c"
-        if len(flags) > 0:
+        if len(flags) > 0 or len(atributos) > 0:
             sql += " INNER JOIN product p ON c.id = p.color "
-            condition = ajustar_condition(flags)
+            condition = ajustar_condition(flags, atributos)
             sql += condition
 
         if self.conexion.is_connected():
@@ -105,11 +104,11 @@ class DAO():
             except Error as ex:
                 print("Error al intentar la conexión: {0}".format(ex))
 
-    def list_categorys(self, flags : dict | None):
+    def list_categorys(self, flags : dict | None, atributos : dict | None):
         sql = "SELECT DISTINCT c.* FROM categoria c"
-        if len(flags) > 0:
+        if len(flags) > 0 or len(atributos) > 0:
             sql += " INNER JOIN product p ON c.id = p.categoria "
-            condition = ajustar_condition(flags)
+            condition = ajustar_condition(flags, atributos)
             sql += condition
 
         if self.conexion.is_connected():
@@ -121,12 +120,14 @@ class DAO():
             except Error as ex:
                 print("Error al intentar la conexión: {0}".format(ex))
 
-    def list_familias(self, flags : dict | None):
+    def list_familias(self, flags : dict | None, atributos : dict | None):
         sql = "SELECT DISTINCT f.* FROM familia f"
-        if len(flags) > 0:
+        if len(flags) > 0 or len(atributos) > 0:
             sql += " INNER JOIN product p ON f.id = p.familia "
-            condition = ajustar_condition(flags)
+            condition = ajustar_condition(flags, atributos)
             sql += condition
+        
+        # print(sql)
 
         if self.conexion.is_connected():
             try:
@@ -164,6 +165,7 @@ def ajustar_condition(flags : dict, atributos : dict):
     condition = ""
     condition_complete = ""
     use_where = False
+    # print(atributos)
 
     for nombre, valor in flags.items():
         if nombre == "subcategoria":
@@ -206,16 +208,16 @@ def ajustar_condition(flags : dict, atributos : dict):
                 nombre = "precio"
                 valor = "< "+ valor
             elif nombre == "palabra_clave":
-                nombre = "name "
+                nombre = "name"
                 valor = "LIKE '%" + valor + "%'"
             else :
                 valor = "= '"+ valor + "'"
         
-            atributos["quantity"] = valor
+            # atributos["quantity"] = valor
             condition_complete += "{0} {1}"
             condition_complete = condition_complete.format(nombre, valor)
 
-    print(condition_complete)
+    # print(condition_complete)
 
     condition = condition_complete
     

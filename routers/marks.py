@@ -13,10 +13,10 @@ from db.models.mark import Mark
 ### General ###
 from general.numeric import is_numeric
 
-async def list_marks(flags : dict | None):
+async def list_marks(flags : dict | None, atributos : dict):
     dao = DAO()
     try:
-        marks = dao.list_mark(flags)
+        marks = dao.list_mark(flags, atributos)
         return marks_schema(marks)
     except:
         return {"error" : "No se pudo acceder a las marcas"}

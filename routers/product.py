@@ -32,8 +32,7 @@ async def products(x_categoria : str | None = Header(default=None),
                    x_precioinicial : str | None = Header(default=None),
                    x_preciofinal : str | None = Header(default=None),
                    x_palabraclave : str | None = Header(default=None),
-                   x_nuevo : str | None = Header(default=None),
-                   x_color : str | None = Header(default=None)):
+                   x_nuevo : str | None = Header(default=None)):
     
     id_familia = await buscar_familia(x_categoria)
     id_categoria = await buscar_categoria(x_subcategoria)
@@ -55,16 +54,16 @@ async def products(x_categoria : str | None = Header(default=None),
     atributos_producto["precio_inicial"] = x_precioinicial
     atributos_producto["precio_final"] = x_preciofinal
     atributos_producto["palabra_clave"] = x_palabraclave
-    atributos_producto["color"] = x_color
+    # atributos_producto["color"] = x_color
 
     # print(atributos_producto)
 
     try:
         prods = await list_products(items_busqueda, atributos_producto)
-        marks = await list_marks(items_busqueda)
-        colores = await list_colors(items_busqueda)
-        familias = await list_families(items_busqueda)
-        categorys = await list_categorias(items_busqueda)
+        marks = await list_marks(items_busqueda, atributos_producto)
+        colores = await list_colors(items_busqueda, atributos_producto)
+        familias = await list_families(items_busqueda, atributos_producto)
+        categorys = await list_categorias(items_busqueda, atributos_producto)
         productos = catalogo_schema(prods, marks, len(prods), colores, categorys, familias)
     except:
         return {"mensaje" : "Ha ocurrido un error"}
