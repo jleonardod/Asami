@@ -52,6 +52,7 @@ class DAO():
                 sql = "SELECT p.*, f.{0}, c.{0}, m.{0}, d.{0}, t.{0}, l.{0} FROM product p {1} familia f ON p.familia = f.id {1} categoria c ON p.categoria = c.id {1} marks m ON p.marks = m.id {1} currency_def d ON p.currencyDef = d.id {1} tributari_classification t ON p.tributariClassification = t.id {1} color l ON p.color = l.id {2}"
 
                 cursor.execute(sql.format("nombre", "INNER JOIN", condition))
+                # print(sql.format("nombre", "INNER JOIN", condition))
                 products = cursor.fetchall()
                 return products
             except Error as ex:
@@ -195,8 +196,20 @@ def ajustar_condition(flags : dict, atributos : dict):
                     valor = "> 0"
                 else:
                     valor = "< 1"
-            elif nombre == "nuevo" or nombre == "descuento":
-                valor = "= "+ valor
+            elif nombre == "color":
+                nombre = "l.nombre"
+                valor = "= '"+ valor + "'"
+            elif nombre == "precio_inicial":
+                nombre = "precio"
+                valor = "> "+ valor
+            elif nombre == "precio_final":
+                nombre = "precio"
+                valor = "< "+ valor
+            elif nombre == "palabra_clave":
+                nombre = "name "
+                valor = "LIKE '%" + valor + "%'"
+            else :
+                valor = "= '"+ valor + "'"
         
             atributos["quantity"] = valor
             condition_complete += "{0} {1}"
