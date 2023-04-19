@@ -32,7 +32,7 @@ async def products(x_categoria : str | None = Header(default=None),
                    x_precioinicial : str | None = Header(default=None),
                    x_preciofinal : str | None = Header(default=None),
                    x_palabraclave : str | None = Header(default=None),
-                   x_productonuevo : str | None = Header(default=None),
+                   x_nuevo : str | None = Header(default=None),
                    x_color : str | None = Header(default=None)):
     
     id_familia = await buscar_familia(x_categoria)
@@ -41,19 +41,26 @@ async def products(x_categoria : str | None = Header(default=None),
 
     flags = {"familia" : id_familia, "subcategoria" : id_categoria, "marks" : id_mark}
     items_busqueda = {}
+    atributos_producto = {}
 
     for nombre, valor in flags.items():
         if not valor is None:
             items_busqueda[nombre] = valor
-            
-    print(x_disponibilidad)
-    if x_disponibilidad == '1' or x_disponibilidad == '2':
-        items_busqueda["disponibilidad"] = x_disponibilidad
-    else:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Disponibilidad no valida")
-    
+
+    atributos_producto = await ajustar_atributos(x_disponibilidad, "quantity", atributos_producto)
+    atributos_producto = await ajustar_atributos(x_descuento, "descuento", atributos_producto)
+    atributos_producto = await ajustar_atributos(x_nuevo, "nuevo", atributos_producto)
+
+    atributos_producto["partNum"] = x_partnum
+    atributos_producto["precio_inicial"] = x_precioinicial
+    atributos_producto["precio_final"] = x_preciofinal
+    atributos_producto["palabra_clave"] = x_palabraclave
+    atributos_producto["color"] = x_color
+
+    # print(atributos_producto)
+
     try:
-        prods = await list_products(items_busqueda)
+        prods = await list_products(items_busqueda, atributos_producto)
         marks = await list_marks(items_busqueda)
         colores = await list_colors(items_busqueda)
         familias = await list_families(items_busqueda)
@@ -67,14 +74,23 @@ async def products(x_categoria : str | None = Header(default=None),
     else:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No existen productos")
 
-async def list_products(flags : dict):
-    
+async def list_products(flags : dict, atributos : dict):    
     dao = DAO()
     try:
-        products = dao.list_products(flags)
+        products = dao.list_products(flags, atributos)
         return products_schema(products)
     except:
         return {"error" : "No se pudo acceder a los productos"}
+    
+async def ajustar_atributos(atributo : str | None, nombre : str, atributos_producto : dict):
+    
+    if atributo == '1' or atributo == '2' or atributo == None:
+        atributos_producto[nombre] = atributo
+        # print(atributos_producto)
+        return atributos_producto
+    else:
+        
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Consulta no valida")
 
 
     

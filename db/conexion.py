@@ -36,10 +36,13 @@ class DAO():
             except Error as ex:
                 print("Error al intentar la conexión: {0}".format(ex))
 
-    def list_products(self, flags : dict | None):
+    def list_products(self, flags : dict | None, atributos : dict | None):
 
-        if len(flags) > 0:
-            condition = ajustar_condition(flags)
+        
+
+        if len(flags) > 0 or len(atributos) > 0:
+            
+            condition = ajustar_condition(flags, atributos)
         else:
             condition = ""
 
@@ -155,15 +158,19 @@ class DAO():
             except Error as ex:
                 print("Error al intentar la conexión: {0}".format(ex))
 
-def ajustar_condition(flags : dict):
+def ajustar_condition(flags : dict, atributos : dict):
     contador = 0
     condition = ""
+    condition_complete = ""
+    use_where = False
+
     for nombre, valor in flags.items():
         if nombre == "subcategoria":
             nombre = "categoria"
 
         if contador == 0:
             condition += " WHERE "
+            use_where = True
         else: 
             condition += " AND "
                 
@@ -172,6 +179,33 @@ def ajustar_condition(flags : dict):
                 
         contador = contador+1
 
-    # print(condition)
+    condition_complete = condition
+
+    for nombre, valor in atributos.items():
+
+        if not valor is None:
+            if use_where:
+                condition_complete += " AND "
+            else:
+                condition_complete += " WHERE "
+                use_where = True
+
+            if nombre == "quantity":
+                if valor == "1":
+                    valor = "> 0"
+                else:
+                    valor = "< 1"
+            elif nombre == "nuevo" or nombre == "descuento":
+                valor = "= "+ valor
+        
+            atributos["quantity"] = valor
+            condition_complete += "{0} {1}"
+            condition_complete = condition_complete.format(nombre, valor)
+
+    print(condition_complete)
+
+    condition = condition_complete
+    
+
     return condition
             
