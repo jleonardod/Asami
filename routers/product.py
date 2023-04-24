@@ -1,3 +1,4 @@
+### API ###
 from fastapi import APIRouter, Header, Depends, status, HTTPException
 from dependencies import get_token_header
 
@@ -5,7 +6,7 @@ from dependencies import get_token_header
 from db.conexion import DAO
 
 ### Schemas ###
-from db.schemas.product import products_schema
+from db.schemas.product import products_schema, product_schema
 from db.schemas.catalogo import catalogo_schema
 
 ### Metodos ###
@@ -14,8 +15,9 @@ from routers.marks import list_marks, buscar_marca
 from routers.colors import list_colors
 from routers.familia import list_families, buscar_familia
 
-### General ###
-from general.numeric import is_numeric
+### Models ###
+from db.models.product import Product
+
 
 router = APIRouter(prefix="/product",
                    tags=["products/"],
@@ -92,5 +94,22 @@ async def ajustar_atributos(atributo : str | None, nombre : str, atributos_produ
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Consulta no valida")
 
 
+async def search_product(field : str, key):
+    dao = DAO()
+    try:
+        producto = dao.buscar_producto(field, key)
+        return Product(**product_schema(producto))
+    except:
+        return None
     
-
+async def actualizar_producto(field : str, cantidad_productos : dict):
+    dao = DAO()
+    for id, value in cantidad_productos.items():
+        new_quantity = value[1] - value[0]
+        
+        try:
+            producto = dao.update_producto(field, id, new_quantity)
+        except:
+            return False
+        
+    return True

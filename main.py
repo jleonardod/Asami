@@ -5,7 +5,7 @@ from jose import jwt, JWTError
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from fastapi.staticfiles import StaticFiles
-from routers import client, product
+from routers import client, product, pedido
 from dependencies import get_token_header
 from routers.client import search_client, search_full_log
 from db.models import client as cl
@@ -19,6 +19,7 @@ app.include_router(client.router,
                    responses={status.HTTP_404_NOT_FOUND: {"message": "No encontrado"}})
 
 app.include_router(product.router)
+app.include_router(pedido.router)
 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_DURATION = 1
