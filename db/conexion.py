@@ -18,7 +18,7 @@ class DAO():
         if self.conexion.is_connected():
             try:
                 cursor = self.conexion.cursor()
-                sql = "SELECT * FROM client WHERE {0} = {1}"
+                sql = "SELECT * FROM client WHERE {0} = '{1}'"
                 cursor.execute(sql.format(field, key))
                 client = cursor.fetchone()
                 return client
@@ -159,6 +159,54 @@ class DAO():
                 return products
             except Error as ex:
                 print("Error al intentar la conexión: {0}".format(ex))
+
+    def crear_cliente_final(self, cliente_final, id_cliente : int):
+        if self.conexion.is_connected():
+            try:
+                cursor = self.conexion.cursor()
+                sql = "INSERT INTO final_client(nombre, identificacion, telefono, direccion, ciudad, id_client) VALUES ('{0}', '{1}', '{2}', '{3}', {4}, {5})"
+                cursor.execute(sql.format(cliente_final.nombre, cliente_final.identificacion, cliente_final.telefono, cliente_final.direccion, cliente_final.ciudad, id_cliente))
+                self.conexion.commit()
+                return cursor.lastrowid
+            except Error as ex:
+                print("Error al intentar conexión: {0}".format(ex))
+
+    def buscar_producto(self, field : str | None, key : str | None):
+        condition = "WHERE {0} = '{1}'"
+        condition = condition.format(field, key)
+        if self.conexion.is_connected():
+            try:
+                cursor = self.conexion.cursor()
+                sql = "SELECT p.*, f.{0}, c.{0}, m.{0}, d.{0}, t.{0}, l.{0} FROM product p {1} familia f ON p.familia = f.id {1} categoria c ON p.categoria = c.id {1} marks m ON p.marks = m.id {1} currency_def d ON p.currencyDef = d.id {1} tributari_classification t ON p.tributariClassification = t.id {1} color l ON p.color = l.id {2}"
+                cursor.execute(sql.format("nombre", "INNER JOIN", condition))
+                # print(sql.format("nombre", "INNER JOIN", condition))
+                product = cursor.fetchone()
+                return product
+            except Error as ex:
+                print("Error al intentar la conexión: {0}".format(ex))
+
+    def insertar_pedido(self, id_cliente : int, id_final_client : int, products : list, fecha_hora : str):
+        cadena_productos = ','.join([str(item) for item in products])
+        if self.conexion.is_connected():
+            try:
+                cursor = self.conexion.cursor()
+                sql = "INSERT INTO pedido(cliente, cliente_final, products, fecha_hora) VALUES ({0}, {1}, '{2}', '{3}')"
+                cursor.execute(sql.format(id_cliente, id_final_client, cadena_productos, fecha_hora))
+                self.conexion.commit()
+                return cursor.lastrowid
+            except Error as ex:
+                print("Error al intentar conexión: {0}".format(ex))
+
+    def update_producto(self, field: str, id : int, new_value):
+        if self.conexion.is_connected():
+            try:
+                cursor = self.conexion.cursor()
+                sql = "UPDATE product SET {0} = '{1}' WHERE id = {2}"
+                cursor.execute(sql.format(field, new_value, id))
+                self.conexion.commit()
+                return cursor.lastrowid
+            except Error as ex:
+                print("Error al intentar conexión: {0}".format(ex))
 
 def ajustar_condition(flags : dict, atributos : dict):
     contador = 0
